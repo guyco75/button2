@@ -1,4 +1,3 @@
-
 #ifndef BUTTON_H
 #define BUTTON_H
 
@@ -25,6 +24,7 @@ static const char *scene_fsm_state_names[] = {
 
 enum scene {
   SCENE_NONE,
+  SCENE_ARMED,
   SCENE_SINGLE_CLICK,
   SCENE_SINGLE_CLICK_DONE,
   SCENE_DOUBLE_CLICK,
@@ -32,9 +32,11 @@ enum scene {
   SCENE_TRIPLE_CLICK,
   SCENE_TRIPLE_CLICK_DONE,
   SCENE_LONG_CLICK,
+  SCENE_UNDEF,
 };
 static const char *scene_names[] = {
   "SCENE_NONE",
+  "SCENE_ARMED",
   "SCENE_SINGLE_CLICK",
   "SCENE_SINGLE_CLICK_DONE",
   "SCENE_DOUBLE_CLICK",
@@ -42,6 +44,7 @@ static const char *scene_names[] = {
   "SCENE_TRIPLE_CLICK",
   "SCENE_TRIPLE_CLICK_DONE",
   "SCENE_LONG_CLICK",
+  "SCENE_UNDEF",
 };
 
 struct button {
@@ -89,6 +92,7 @@ struct button {
           action_start_time = millis();
           change_fsm_state(SCENE_FSM_ARMED);
           clicks = 0;
+          return SCENE_ARMED;
         }
         return SCENE_NONE;
 
@@ -96,8 +100,7 @@ struct button {
         if (!state) { // short click
           change_fsm_state(SCENE_FSM_POST_SHORT);
           action_start_time = millis();
-          clicks++;
-          return SCENE_SINGLE_CLICK - 2 + 2*clicks;
+          return clicks < 3 ? SCENE_SINGLE_CLICK + 2*clicks : SCENE_UNDEF;
         } else if ((millis() - action_start_time) >= BTN_LONG_PRESS_THRESHOLD_MS) { // long click
           change_fsm_state(SCENE_FSM_LONG);
           return SCENE_LONG_CLICK;
@@ -108,9 +111,11 @@ struct button {
         if (state) {
           action_start_time = millis();
           change_fsm_state(SCENE_FSM_ARMED);
+          clicks++;
+          return SCENE_ARMED;
         } else if ((millis() - action_start_time) >= BTN_LONG_PRESS_THRESHOLD_MS) {
           change_fsm_state(SCENE_FSM_IDLE);
-          return SCENE_SINGLE_CLICK_DONE - 2 + 2*clicks;
+          return clicks < 3 ? SCENE_SINGLE_CLICK_DONE + 2*clicks : SCENE_UNDEF;
         }
         return SCENE_NONE;
 

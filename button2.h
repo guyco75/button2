@@ -5,6 +5,8 @@
 //#include "utils.h"
 #define assert(test, str1, str2)
 
+char btn_str[120];
+
 #define DEBOUNCE_INTERVAL_MS (40)             // Unstable/debounce duration
 #define BTN_LONG_PRESS_THRESHOLD_MS (500)     // Below that it's considered a SHORT press; above it a LONG press
 
@@ -63,11 +65,8 @@ struct button {
 
   void change_fsm_state(enum scene_fsm_state st) {
 #if 0
-    Serial.print(millis());
-    Serial.print("\t\t");
-    Serial.print(scene_fsm_state_names[scene_fsm]);
-    Serial.print(" --> ");
-    Serial.println(scene_fsm_state_names[st]);
+    snprintf(btn_str, sizeof(btn_str), "%lu\t\t%s --> %s", millis(), scene_fsm_state_names[scene_fsm], scene_fsm_state_names[st]);
+    Serial.println(btn_str);
 #endif
     scene_fsm = st;
   }

@@ -100,7 +100,7 @@ struct button {
         if (!state) { // short click
           change_fsm_state(SCENE_FSM_POST_SHORT);
           action_start_time = millis();
-          return clicks < 3 ? SCENE_SINGLE_CLICK + 2*clicks : SCENE_UNDEF;
+          return (enum scene)(clicks < 3 ? SCENE_SINGLE_CLICK + 2*clicks : SCENE_UNDEF);
         } else if ((millis() - action_start_time) >= BTN_LONG_PRESS_THRESHOLD_MS) { // long click
           change_fsm_state(SCENE_FSM_LONG);
           return SCENE_LONG_CLICK;
@@ -115,7 +115,7 @@ struct button {
           return SCENE_ARMED;
         } else if ((millis() - action_start_time) >= BTN_LONG_PRESS_THRESHOLD_MS) {
           change_fsm_state(SCENE_FSM_IDLE);
-          return clicks < 3 ? SCENE_SINGLE_CLICK_DONE + 2*clicks : SCENE_UNDEF;
+          return (enum scene)(clicks < 3 ? SCENE_SINGLE_CLICK_DONE + 2*clicks : SCENE_UNDEF);
         }
         return SCENE_NONE;
 

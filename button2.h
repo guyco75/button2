@@ -58,9 +58,11 @@ struct button {
   bool state;
   bool unstable_state;
 
-  void setup(volatile uint8_t *pin_port, uint8_t pin_bit) {
-    this->pin_port = pin_port;
-    this->pin_bit = pin_bit;
+  void setup(uint8_t btn_pin) {
+    this->pin_port = portInputRegister(digitalPinToPort(btn_pin));
+    this->pin_bit = digitalPinToBitMask(btn_pin);
+    pinMode(btn_pin, INPUT_PULLUP);
+
     state = unstable_state = 0;
     clicks = 0;
     last_change_ms = millis();
@@ -75,7 +77,7 @@ struct button {
   }
 
   enum scene read_state() {
-    bool read_val = !(*pin_port & _BV(pin_bit));
+    bool read_val = !(*pin_port & pin_bit);
 
     if (read_val != unstable_state) {
       unstable_state = read_val;

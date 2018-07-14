@@ -66,8 +66,7 @@ struct button {
 
   void change_fsm_state(enum button_fsm_state st) {
 #if 0
-    snprintf(btn_str, sizeof(btn_str), "%lu\t\t%s --> %s", millis(), button_fsm_state_names[fsm_state], button_fsm_state_names[st]);
-    Serial.println(btn_str);
+    serial_out("%llu\t\t%s --> %s", millis(), button_fsm_state_names[fsm_state], button_fsm_state_names[st]);
 #endif
     fsm_state = st;
   }

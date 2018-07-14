@@ -84,46 +84,50 @@ struct button {
       }
     }
 
+    last_event = BUTTON_EVENT_NONE;
+
     switch(fsm_state) {
       case BUTTON_FSM_IDLE:
         if (pin_state) {
           action_start_time = millis();
           change_fsm_state(BUTTON_FSM_ARMED);
           clicks = 0;
-          return BUTTON_EVENT_ARMED;
+          last_event = BUTTON_EVENT_ARMED;
         }
-        return BUTTON_EVENT_NONE;
+        break;
 
       case BUTTON_FSM_ARMED:
         if (!pin_state) { // short click
           change_fsm_state(BUTTON_FSM_POST_SHORT);
           action_start_time = millis();
-          return (enum button_event)(clicks < 3 ? BUTTON_EVENT_SINGLE_CLICK + 2*clicks : BUTTON_EVENT_UNDEF);
+          last_event = (enum button_event)(clicks < 3 ? BUTTON_EVENT_SINGLE_CLICK + 2*clicks : BUTTON_EVENT_UNDEF);
         } else if ((millis() - action_start_time) >= BTN_LONG_PRESS_THRESHOLD_MS) { // long click
           change_fsm_state(BUTTON_FSM_LONG);
-          return BUTTON_EVENT_LONG_CLICK;
+          last_event = BUTTON_EVENT_LONG_CLICK;
         }
-        return BUTTON_EVENT_NONE;
+        break;
 
       case BUTTON_FSM_POST_SHORT:
         if (pin_state) {
           action_start_time = millis();
           change_fsm_state(BUTTON_FSM_ARMED);
           clicks++;
-          return BUTTON_EVENT_ARMED;
+          last_event = BUTTON_EVENT_ARMED;
         } else if ((millis() - action_start_time) >= BTN_LONG_PRESS_THRESHOLD_MS) {
           change_fsm_state(BUTTON_FSM_IDLE);
-          return (enum button_event)(clicks < 3 ? BUTTON_EVENT_SINGLE_CLICK_DONE + 2*clicks : BUTTON_EVENT_UNDEF);
+          last_event = (enum button_event)(clicks < 3 ? BUTTON_EVENT_SINGLE_CLICK_DONE + 2*clicks : BUTTON_EVENT_UNDEF);
         }
-        return BUTTON_EVENT_NONE;
+        break;
 
       case BUTTON_FSM_LONG:
         if (pin_state) {
-          return BUTTON_EVENT_LONG_CLICK;
+          last_event = BUTTON_EVENT_LONG_CLICK;
+        } else {
+          change_fsm_state(BUTTON_FSM_IDLE);
         }
-        change_fsm_state(BUTTON_FSM_IDLE);
-        return BUTTON_EVENT_NONE;
+        break;
     }
+    return last_event;
   }
 };
 

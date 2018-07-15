@@ -66,7 +66,10 @@ struct button {
 
   void change_fsm_state(enum button_fsm_state st) {
 #if 0
-    serial_out("%llu\t\t%s --> %s", millis(), button_fsm_state_names[fsm_state], button_fsm_state_names[st]);
+    static unsigned long int last_change = 0;
+    unsigned long int now = millis();
+    serial_out("0x%02x  %8lu\t\t%s --> %s", pin_bit, now - last_change, button_fsm_state_names[fsm_state], button_fsm_state_names[st]);
+    last_change = now;
 #endif
     fsm_state = st;
   }
